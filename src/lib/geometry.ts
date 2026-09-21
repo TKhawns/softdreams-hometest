@@ -68,6 +68,22 @@ export function clampMinutes(
 }
 
 /**
+ * Which day column (0-based) contains a client x coordinate. `left`/`width`
+ * describe the container that holds the equally-sized columns; out-of-range
+ * coordinates clamp to the nearest column.
+ */
+export function columnIndexAtX(
+	x: number,
+	left: number,
+	width: number,
+	columnCount: number,
+): number {
+	if (width <= 0 || columnCount <= 0) return 0;
+	const columnWidth = width / columnCount;
+	return clampMinutes(Math.floor((x - left) / columnWidth), 0, columnCount - 1);
+}
+
+/**
  * Build a final event range from a drag: normalize direction, enforce the
  * minimum duration by extending the end, then clamp both edges to the grid.
  */

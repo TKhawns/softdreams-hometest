@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { ContextMenu } from "../components/ContextMenu";
 import { EventDetailsDialog } from "../components/EventDetailsDialog";
 import { EventForm } from "../components/EventForm";
+import { MonthCalendar } from "../components/MonthCalendar";
 import { WeekView } from "../components/WeekView";
 import type { CalendarEvent } from "../lib/events";
 import {
@@ -32,7 +33,7 @@ type TimeRange = { start: Date; end: Date };
 
 function CalendarPage() {
 	const now = useMemo(() => new Date(), []);
-	const days = useMemo(() => buildWeekDays(now), [now]);
+	const [days, setDays] = useState<Date[]>(() => buildWeekDays(now));
 
 	const [events, setEvents] = useState<CalendarEvent[]>([]);
 	const [viewing, setViewing] = useState<CalendarEvent | null>(null);
@@ -62,6 +63,10 @@ function CalendarPage() {
 		setViewing(null);
 		setEditing(null);
 		setCreating(range);
+	}, []);
+
+	const handleSelectDay = useCallback((day: Date) => {
+		setDays(buildWeekDays(day));
 	}, []);
 
 	const handleDragMove = useCallback(
@@ -122,15 +127,20 @@ function CalendarPage() {
 
 	return (
 		<>
-			<WeekView
-				days={days}
-				now={now}
-				events={events}
-				onOpenEvent={openEvent}
-				onEventContextMenu={openEventMenu}
-				onDragCreate={handleDragCreate}
-				onDragMove={handleDragMove}
-			/>
+			<div className="flex h-screen">
+				<MonthCalendar days={days} now={now} onSelectDay={handleSelectDay} />
+				<main className="min-w-0 flex-1">
+					<WeekView
+						days={days}
+						now={now}
+						events={events}
+						onOpenEvent={openEvent}
+						onEventContextMenu={openEventMenu}
+						onDragCreate={handleDragCreate}
+						onDragMove={handleDragMove}
+					/>
+				</main>
+			</div>
 
 			{viewing ? (
 				<EventDetailsDialog

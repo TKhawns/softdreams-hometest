@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
 	buildRange,
 	clampMinutes,
+	columnIndexAtX,
 	durationMinutes,
 	durationToHeight,
 	eventSegmentForDay,
@@ -62,6 +63,17 @@ describe("grid geometry", () => {
 		expect(snapMinutes(22, 15)).toBe(15);
 		expect(snapMinutes(23, 15)).toBe(30);
 		expect(snapMinutes(38, 15)).toBe(45);
+	});
+
+	it("columnIndexAtX maps a client x into a day column and clamps at the edges", () => {
+		const left = 100;
+		const width = 700; // 7 days × 100px
+		expect(columnIndexAtX(100, left, width, 7)).toBe(0);
+		expect(columnIndexAtX(199, left, width, 7)).toBe(0);
+		expect(columnIndexAtX(200, left, width, 7)).toBe(1);
+		expect(columnIndexAtX(799, left, width, 7)).toBe(6);
+		expect(columnIndexAtX(900, left, width, 7)).toBe(6); // past the last column
+		expect(columnIndexAtX(50, left, width, 7)).toBe(0); // before the first column
 	});
 
 	it("normalizeRange orders a dragged range regardless of direction", () => {

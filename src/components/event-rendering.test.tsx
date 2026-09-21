@@ -102,8 +102,6 @@ describe("DayColumn with events", () => {
 				events={events}
 				onOpenEvent={noop}
 				onEventContextMenu={noop}
-				onDragCreate={noop}
-				onDragMove={noop}
 			/>,
 		);
 		expect(html).toContain("Morning");
@@ -125,8 +123,6 @@ describe("DayColumn with events", () => {
 				events={[spanning]}
 				onOpenEvent={noop}
 				onEventContextMenu={noop}
-				onDragCreate={noop}
-				onDragMove={noop}
 			/>,
 		);
 		const second = renderToString(
@@ -136,8 +132,6 @@ describe("DayColumn with events", () => {
 				events={[spanning]}
 				onOpenEvent={noop}
 				onEventContextMenu={noop}
-				onDragCreate={noop}
-				onDragMove={noop}
 			/>,
 		);
 		expect(first).toContain("Conference");
@@ -153,10 +147,46 @@ describe("DayColumn with events", () => {
 				events={events}
 				onOpenEvent={noop}
 				onEventContextMenu={noop}
-				onDragCreate={noop}
-				onDragMove={noop}
 			/>,
 		);
 		expect(html).not.toContain("Later");
+	});
+
+	it("replaces the original block with a dragging draft at its moved position", () => {
+		const event = eventOn("Drag me", 10, 0, 11, 0);
+		const moved = { ...event, start: new Date(2026, 8, 21, 9, 0) };
+		const html = renderToString(
+			<DayColumn
+				day={day}
+				now={now}
+				events={[event]}
+				moveDraft={moved}
+				onOpenEvent={noop}
+				onEventContextMenu={noop}
+			/>,
+		);
+		expect(html).toContain("Drag me");
+		expect(html).toContain("ring-2");
+		expect(html).toContain("top:432px"); // 9:00 draft position, not 10:00
+		// Only the draft block is present — the original is hidden. The draft
+		// starts at its own start, so no false ‹ chevron is shown.
+		expect(html.match(/Drag me/g)).toHaveLength(1);
+		expect(html).not.toContain("‹");
+	});
+
+	it("renders the create selection rectangle for the given minute range", () => {
+		const html = renderToString(
+			<DayColumn
+				day={day}
+				now={now}
+				events={[]}
+				createRange={{ start: 9 * 60, end: 10 * 60 }}
+				onOpenEvent={noop}
+				onEventContextMenu={noop}
+			/>,
+		);
+		expect(html).toContain("bg-blue-500/30");
+		expect(html).toContain("top:432px");
+		expect(html).toContain("height:48px");
 	});
 });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { moveWholeEvent, snapDragRange } from "./drag";
+import { defaultCreateRange, moveWholeEvent, snapDragRange } from "./drag";
 
 describe("snapDragRange", () => {
 	it("snaps both endpoints to the 15-minute grid", () => {
@@ -89,6 +89,59 @@ describe("moveWholeEvent", () => {
 		expect(moved).toEqual({
 			start: new Date(2026, 8, 21, 14, 0),
 			end: new Date(2026, 8, 21, 15, 0),
+		});
+	});
+
+	it("re-anchors the whole event on a different day, preserving duration and grab offset", () => {
+		const event = {
+			start: new Date(2026, 8, 21, 9, 0), // Monday
+			end: new Date(2026, 8, 21, 10, 0),
+		};
+		// Grabbed at 09:30 (offset 30min), dropped on Wednesday at 14:00.
+		const moved = moveWholeEvent(
+			event,
+			new Date(2026, 8, 23, 0, 0), // Wednesday dayStart
+			14 * 60 - 30, // 14:00 minus the 30-min grab offset
+		);
+		expect(moved).toEqual({
+			start: new Date(2026, 8, 23, 13, 30),
+			end: new Date(2026, 8, 23, 14, 30),
+		});
+	});
+});
+
+describe("defaultCreateRange", () => {
+	const day = new Date(2026, 8, 21, 0, 0); // Mon Sep 21
+
+	it("builds a 1-hour range starting at the snapped click minute", () => {
+		expect(defaultCreateRange(day, 8 * 60)).toEqual({
+			start: new Date(2026, 8, 21, 8, 0),
+			end: new Date(2026, 8, 21, 9, 0),
+		});
+	});
+
+	it("snaps a mid-slot click to the nearest 15-minute mark", () => {
+		expect(defaultCreateRange(day, 8 * 60 + 7)).toEqual({
+			start: new Date(2026, 8, 21, 8, 0),
+			end: new Date(2026, 8, 21, 9, 0),
+		});
+		expect(defaultCreateRange(day, 8 * 60 + 8)).toEqual({
+			start: new Date(2026, 8, 21, 8, 15),
+			end: new Date(2026, 8, 21, 9, 15),
+		});
+	});
+
+	it("clamps a click before midnight so the 1-hour default fits the day", () => {
+		expect(defaultCreateRange(day, 23 * 60 + 59)).toEqual({
+			start: new Date(2026, 8, 21, 23, 0),
+			end: new Date(2026, 8, 22, 0, 0),
+		});
+	});
+
+	it("clamps a click above the top of the day to midnight", () => {
+		expect(defaultCreateRange(day, -30)).toEqual({
+			start: new Date(2026, 8, 21, 0, 0),
+			end: new Date(2026, 8, 21, 1, 0),
 		});
 	});
 });

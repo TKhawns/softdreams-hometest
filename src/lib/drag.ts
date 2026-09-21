@@ -5,7 +5,32 @@ import {
 	MIN_EVENT_MINUTES,
 	snapMinutes,
 } from "./geometry";
-import { addMinutes, MINUTES_PER_DAY, MS_PER_MINUTE } from "./time";
+import {
+	addMinutes,
+	dateAtMinutesOfDay,
+	MINUTES_PER_DAY,
+	MS_PER_MINUTE,
+} from "./time";
+
+/**
+ * The default range offered when the user merely clicks an empty grid slot
+ * (no drag): a 1-hour event starting at the snapped click minute. The start
+ * is clamped so the hour fits inside the visible day (≤ 23:00).
+ */
+export function defaultCreateRange(
+	day: Date,
+	clickMinuteOfDay: number,
+): { start: Date; end: Date } {
+	const startMinute = clampMinutes(
+		snapMinutes(clickMinuteOfDay, GRID_STEP_MINUTES),
+		0,
+		MINUTES_PER_DAY - 60,
+	);
+	return {
+		start: dateAtMinutesOfDay(day, startMinute),
+		end: dateAtMinutesOfDay(day, startMinute + 60),
+	};
+}
 
 /**
  * The final event range (minutes-of-day) for a drag-create gesture:
