@@ -6,7 +6,13 @@ import { EventDetailsDialog } from "../components/EventDetailsDialog";
 import { EventForm } from "../components/EventForm";
 import { WeekView } from "../components/WeekView";
 import type { CalendarEvent } from "../lib/events";
-import { addEvent, createEvent, deleteEvent, updateEvent } from "../lib/events";
+import {
+	addEvent,
+	createEvent,
+	deleteEvent,
+	isEventRangeValid,
+	updateEvent,
+} from "../lib/events";
 import { buildWeekDays } from "../lib/week";
 
 import { rootRoute } from "./__root";
@@ -60,6 +66,7 @@ function CalendarPage() {
 
 	const handleDragMove = useCallback(
 		(event: CalendarEvent, range: TimeRange) => {
+			if (!isEventRangeValid(range)) return;
 			setEvents((current) =>
 				updateEvent(current, { ...event, start: range.start, end: range.end }),
 			);

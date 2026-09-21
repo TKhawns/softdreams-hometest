@@ -5,7 +5,7 @@ import {
 	MIN_EVENT_MINUTES,
 	snapMinutes,
 } from "./geometry";
-import { MINUTES_PER_DAY } from "./time";
+import { addMinutes, MINUTES_PER_DAY, MS_PER_MINUTE } from "./time";
 
 /**
  * The final event range (minutes-of-day) for a drag-create gesture:
@@ -24,20 +24,30 @@ export function snapDragRange(
 }
 
 /**
- * The new event range (minutes-of-day) after a move-drag: the original
- * duration is preserved, the new start snaps to the grid, and the whole
- * range stays within [0, 1440].
+ * The new full event range after a move-drag. The WHOLE event keeps its total
+ * duration; only its start is re-anchored on the drag day (snapped to the
+ * grid, clamped to not start before midnight). The end may overflow into the
+ * next day, which is what preserves the duration of multi-day events.
+ *
+ * `rawNewStartMinute` is minutes-of-day relative to `dayStart`. Never derive
+ * it from a day-1 segment's minute-of-day: `eventSegmentForDay` clips such a
+ * segment's end to next-day midnight, and minutesSinceMidnight of that instant
+ * is 0, not 1440, which corrupts the dragged span.
  */
-export function moveEventRange(
-	startMinute: number,
-	endMinute: number,
-	newStartMinute: number,
-): { start: number; end: number } {
-	const duration = endMinute - startMinute;
-	const start = clampMinutes(
-		snapMinutes(newStartMinute, GRID_STEP_MINUTES),
-		0,
-		MINUTES_PER_DAY - duration,
+export function moveWholeEvent(
+	event: { start: Date; end: Date },
+	dayStart: Date,
+	rawNewStartMinute: number,
+): { start: Date; end: Date } {
+	const durationMinutes =
+		(event.end.getTime() - event.start.getTime()) / MS_PER_MINUTE;
+	const start = addMinutes(
+		dayStart,
+		clampMinutes(
+			snapMinutes(rawNewStartMinute, GRID_STEP_MINUTES),
+			0,
+			MINUTES_PER_DAY - 1,
+		),
 	);
-	return { start, end: start + duration };
+	return { start, end: addMinutes(start, durationMinutes) };
 }

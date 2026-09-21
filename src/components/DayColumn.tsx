@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { moveEventRange, snapDragRange } from "../lib/drag";
+import { moveWholeEvent, snapDragRange } from "../lib/drag";
 import type { CalendarEvent } from "../lib/events";
 import type { DayEventSegment } from "../lib/geometry";
 import {
@@ -10,7 +10,7 @@ import {
 	yToMinutes,
 } from "../lib/geometry";
 import { layoutDaySegments } from "../lib/layout";
-import { dateAtMinutesOfDay, minutesSinceMidnight } from "../lib/time";
+import { dateAtMinutesOfDay, MS_PER_MINUTE } from "../lib/time";
 import { isSameDay } from "../lib/week";
 import { EventBlock } from "./EventBlock";
 
@@ -45,8 +45,6 @@ type Drag =
 	| {
 			mode: "move";
 			event: CalendarEvent;
-			segmentStart: number;
-			segmentEnd: number;
 			grabOffset: number;
 			current: number;
 			pointerId: number;
@@ -59,8 +57,6 @@ interface PointerDown {
 	startY: number;
 	anchor: number;
 	event?: CalendarEvent;
-	segmentStart?: number;
-	segmentEnd?: number;
 	grabOffset?: number;
 }
 
@@ -87,14 +83,16 @@ export function DayColumn({
 	const isToday = isSameDay(day, now);
 	const nowY = timeToY(now, HOUR_HEIGHT_PX);
 
+	const dayStartMs = day.getTime();
+
 	const segments: DaySegment[] = [];
 	for (const event of events) {
 		const segment = eventSegmentForDay(event, day);
 		if (!segment) continue;
 		segments.push({
 			id: event.id,
-			start: minutesSinceMidnight(segment.start),
-			end: minutesSinceMidnight(segment.end),
+			start: (segment.start.getTime() - dayStartMs) / MS_PER_MINUTE,
+			end: (segment.end.getTime() - dayStartMs) / MS_PER_MINUTE,
 			event,
 			segment,
 		});
@@ -128,8 +126,6 @@ export function DayColumn({
 				startY: e.clientY,
 				anchor: minute,
 				event: segment.event,
-				segmentStart: segment.start,
-				segmentEnd: segment.end,
 				grabOffset: minute - segment.start,
 			};
 		} else {
@@ -158,8 +154,6 @@ export function DayColumn({
 				setDrag({
 					mode: "move",
 					event: down.event as CalendarEvent,
-					segmentStart: down.segmentStart as number,
-					segmentEnd: down.segmentEnd as number,
 					grabOffset: down.grabOffset as number,
 					current: minuteFromClientY(e.clientY),
 					pointerId: e.pointerId,
@@ -193,15 +187,12 @@ export function DayColumn({
 				end: dateAtMinutesOfDay(day, range.end),
 			});
 		} else {
-			const range = moveEventRange(
-				active.segmentStart,
-				active.segmentEnd,
+			const range = moveWholeEvent(
+				active.event,
+				day,
 				active.current - active.grabOffset,
 			);
-			onDragMove(active.event, {
-				start: dateAtMinutesOfDay(day, range.start),
-				end: dateAtMinutesOfDay(day, range.end),
-			});
+			onDragMove(active.event, range);
 		}
 	}
 
@@ -210,21 +201,21 @@ export function DayColumn({
 
 	let moveOverride: DaySegment | null = null;
 	if (drag?.mode === "move") {
-		const range = moveEventRange(
-			drag.segmentStart,
-			drag.segmentEnd,
+		const draft = moveWholeEvent(
+			drag.event,
+			day,
 			drag.current - drag.grabOffset,
 		);
-		moveOverride = {
-			id: drag.event.id,
-			start: range.start,
-			end: range.end,
-			event: drag.event,
-			segment: {
-				start: dateAtMinutesOfDay(day, range.start),
-				end: dateAtMinutesOfDay(day, range.end),
-			},
-		};
+		const segment = eventSegmentForDay(draft, day);
+		if (segment) {
+			moveOverride = {
+				id: drag.event.id,
+				start: (segment.start.getTime() - day.getTime()) / MS_PER_MINUTE,
+				end: (segment.end.getTime() - day.getTime()) / MS_PER_MINUTE,
+				event: drag.event,
+				segment,
+			};
+		}
 	}
 
 	return (

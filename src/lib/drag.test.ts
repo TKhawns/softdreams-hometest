@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { moveEventRange, snapDragRange } from "./drag";
+import { moveWholeEvent, snapDragRange } from "./drag";
 
 describe("snapDragRange", () => {
 	it("snaps both endpoints to the 15-minute grid", () => {
@@ -20,28 +20,75 @@ describe("snapDragRange", () => {
 	});
 });
 
-describe("moveEventRange", () => {
-	it("moves the range preserving its duration, snapping the new start", () => {
-		expect(moveEventRange(555, 645, 845)).toEqual({ start: 840, end: 930 }); // 9:15–10:45, drop 14:05 ⇒ 14:00–15:30
+describe("moveWholeEvent", () => {
+	const day = new Date(2026, 8, 21, 0, 0); // Mon Sep 21
+
+	it("moves a same-day event, preserving duration, snapping the new start", () => {
+		const moved = moveWholeEvent(
+			{
+				start: new Date(2026, 8, 21, 9, 15),
+				end: new Date(2026, 8, 21, 10, 45),
+			},
+			day,
+			845,
+		); // drop 14:05
+		expect(moved).toEqual({
+			start: new Date(2026, 8, 21, 14, 0),
+			end: new Date(2026, 8, 21, 15, 30),
+		});
 	});
 
-	it("preserves a non-grid duration", () => {
-		expect(moveEventRange(600, 660, 540)).toEqual({ start: 540, end: 600 }); // 10:00–11:00 ⇒ 9:00–10:00
+	it("moves a multi-day event wholesale, anchoring its start on the drag day", () => {
+		const overnight = {
+			start: new Date(2026, 8, 21, 22, 0), // Mon 22:00
+			end: new Date(2026, 8, 22, 2, 0), // Tue 02:00 (4h)
+		};
+		const moved = moveWholeEvent(overnight, day, 480); // dragged to Mon 08:00
+		expect(moved).toEqual({
+			start: new Date(2026, 8, 21, 8, 0),
+			end: new Date(2026, 8, 21, 12, 0),
+		});
 	});
 
-	it("clamps a drop before midnight so the range stays in the day", () => {
-		expect(moveEventRange(1380, 1410, 1450)).toEqual({
-			start: 1410,
-			end: 1440,
-		}); // 23:00–23:30, drop below 24:00 ⇒ 23:30–24:00
+	it("keeps the total duration even when the end overflows into the next day", () => {
+		const long = {
+			start: new Date(2026, 8, 21, 10, 0),
+			end: new Date(2026, 8, 21, 20, 0), // 10h
+		};
+		const moved = moveWholeEvent(long, day, 23 * 60); // dropped at 23:00
+		expect(moved).toEqual({
+			start: new Date(2026, 8, 21, 23, 0),
+			end: new Date(2026, 8, 22, 9, 0),
+		});
 	});
 
-	it("clamps a drop above midnight to the top of the day", () => {
-		expect(moveEventRange(540, 600, -20)).toEqual({ start: 0, end: 60 }); // 9:00–10:00 ⇒ 0:00–1:00
+	it("clamps a drop before midnight to the top of the day", () => {
+		const moved = moveWholeEvent(
+			{
+				start: new Date(2026, 8, 21, 9, 0),
+				end: new Date(2026, 8, 21, 10, 0),
+			},
+			day,
+			-20,
+		);
+		expect(moved).toEqual({
+			start: new Date(2026, 8, 21, 0, 0),
+			end: new Date(2026, 8, 21, 1, 0),
+		});
 	});
 
 	it("rounds the drop to the nearest grid slot", () => {
-		expect(moveEventRange(600, 660, 832)).toEqual({ start: 825, end: 885 }); // drop 13:52 rounds to 13:45
-		expect(moveEventRange(600, 660, 833)).toEqual({ start: 840, end: 900 }); // drop 13:53 rounds to 14:00
+		const moved = moveWholeEvent(
+			{
+				start: new Date(2026, 8, 21, 9, 0),
+				end: new Date(2026, 8, 21, 10, 0),
+			},
+			day,
+			833, // 13:53
+		);
+		expect(moved).toEqual({
+			start: new Date(2026, 8, 21, 14, 0),
+			end: new Date(2026, 8, 21, 15, 0),
+		});
 	});
 });
