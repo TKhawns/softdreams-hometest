@@ -1,32 +1,44 @@
-# React + TypeScript + Vite
+# Time Blocking Calendar
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A Google Calendar–style work schedule built with **React + Vite + TypeScript**,
+TanStack Router, Tailwind CSS v4, and Biome. No third-party UI or calendar
+libraries.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **7-day view port** starting from today (a real month/day calendar).
+- **Events** with title, description, start and end date-time (no all-day events).
+- **Drag on empty time** to draw a range and open the create dialog, prefilled.
+- **Drag an event** to move it — duration preserved, snapped to the 15-minute
+  grid.
+- **Left-click an event** to view its details.
+- **Right-click an event** for an Edit / Delete context menu.
+- Overlapping events render side by side; multi-day events break across days
+  with continuation chevrons.
 
-## React Compiler
+## Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19 + Vite (+ SWC plugin)
+- @tanstack/react-router (code-based routing)
+- Tailwind CSS v4 via `@tailwindcss/vite`
+- TypeScript, Biome for lint/format, Vitest for tests
 
-## Expanding the Oxlint configuration
+## Commands
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+pnpm install
+pnpm dev          # start the dev server
+pnpm build        # typecheck + production build
+pnpm preview      # serve the production build
+pnpm test         # vitest run
+pnpm lint         # biome check
+pnpm format       # biome format --write
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Layout
+
+- `src/lib/` — pure logic: time/week, events, grid geometry, drag ranges,
+  overlap layout. Fully unit-tested.
+- `src/components/` — UI pieces: WeekView, DayColumn, EventBlock, dialogs,
+  context menu, modal.
+- `src/routes/` — the single calendar route hosting state and CRUD wiring.
