@@ -21,3 +21,37 @@ export function isEventRangeValid(
 ): boolean {
 	return event.end.getTime() > event.start.getTime();
 }
+
+/** Append an event, returning a new array. */
+export function addEvent(
+	events: CalendarEvent[],
+	event: CalendarEvent,
+): CalendarEvent[] {
+	return [...events, event];
+}
+
+/** Replace the event with the matching id, returning a new array. */
+export function updateEvent(
+	events: CalendarEvent[],
+	event: CalendarEvent,
+): CalendarEvent[] {
+	return events.map((existing) =>
+		existing.id === event.id ? event : existing,
+	);
+}
+
+/** Remove the event with the matching id, returning a new array. */
+export function deleteEvent(
+	events: CalendarEvent[],
+	eventId: string,
+): CalendarEvent[] {
+	return events.filter((event) => event.id !== eventId);
+}
+
+/** Look up an event by id. */
+export function findEvent(
+	events: CalendarEvent[],
+	eventId: string,
+): CalendarEvent | undefined {
+	return events.find((event) => event.id === eventId);
+}
