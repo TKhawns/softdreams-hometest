@@ -221,7 +221,7 @@ export function WeekView({
 	return (
 		<div className="flex h-full flex-col bg-white font-sans text-neutral-800">
 			<WeekHeader days={days} now={now} />
-			<div className="flex min-h-0 flex-1 overflow-y-auto">
+			<div className="no-scrollbar flex min-h-0 flex-1 overflow-y-auto">
 				<HourGutter />
 				<div
 					ref={columnsRef}
