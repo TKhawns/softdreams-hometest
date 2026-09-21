@@ -26,6 +26,8 @@ describe("WeekView smoke", () => {
 				events={events}
 				onOpenEvent={noop}
 				onEventContextMenu={noop}
+				onDragCreate={noop}
+				onDragMove={noop}
 			/>,
 		);
 		expect(html).toContain("Sep 21 – 27, 2026");
@@ -48,6 +50,8 @@ describe("WeekView smoke", () => {
 				events={events}
 				onOpenEvent={noop}
 				onEventContextMenu={noop}
+				onDragCreate={noop}
+				onDragMove={noop}
 			/>,
 		); // Mon Oct 5 — outside the displayed week
 		expect(html).not.toContain("bg-blue-600");

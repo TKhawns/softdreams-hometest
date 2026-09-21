@@ -12,6 +12,8 @@ export interface WeekViewProps {
 		event: CalendarEvent,
 		position: { x: number; y: number },
 	): void;
+	onDragCreate(range: { start: Date; end: Date }): void;
+	onDragMove(event: CalendarEvent, range: { start: Date; end: Date }): void;
 }
 
 export function WeekView({
@@ -20,11 +22,13 @@ export function WeekView({
 	events,
 	onOpenEvent,
 	onEventContextMenu,
+	onDragCreate,
+	onDragMove,
 }: WeekViewProps) {
 	return (
 		<div className="flex h-screen flex-col bg-white font-sans text-neutral-800">
 			<WeekHeader days={days} now={now} />
-			<div className="flex flex-1 overflow-y-auto">
+			<div className="flex min-h-0 flex-1 overflow-y-auto">
 				<HourGutter />
 				<div className="flex flex-1">
 					{days.map((day) => (
@@ -35,6 +39,8 @@ export function WeekView({
 							events={events}
 							onOpenEvent={onOpenEvent}
 							onEventContextMenu={onEventContextMenu}
+							onDragCreate={onDragCreate}
+							onDragMove={onDragMove}
 						/>
 					))}
 				</div>

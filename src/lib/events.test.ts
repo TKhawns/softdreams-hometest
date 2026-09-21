@@ -7,6 +7,7 @@ import {
 	findEvent,
 	isEventRangeValid,
 	updateEvent,
+	validateEventInput,
 } from "./events";
 
 const start = new Date(2026, 8, 21, 10, 0);
@@ -89,5 +90,24 @@ describe("event collection operations", () => {
 	it("findEvent returns the event by id or undefined", () => {
 		expect(findEvent([a, b], b.id)).toBe(b);
 		expect(findEvent([a, b], "nope")).toBeUndefined();
+	});
+});
+
+describe("validateEventInput", () => {
+	it("accepts a titled event whose end is after its start", () => {
+		expect(validateEventInput("Sync", start, end)).toBeNull();
+	});
+
+	it("rejects a blank title", () => {
+		expect(validateEventInput("   ", start, end)).toBe("Title is required");
+	});
+
+	it("rejects an end that is not after the start", () => {
+		expect(validateEventInput("Sync", start, start)).toBe(
+			"End must be after start",
+		);
+		expect(validateEventInput("Sync", end, start)).toBe(
+			"End must be after start",
+		);
 	});
 });

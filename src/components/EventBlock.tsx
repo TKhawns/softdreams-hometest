@@ -10,6 +10,7 @@ export interface EventBlockProps {
 	width: number;
 	continuesBefore: boolean;
 	continuesAfter: boolean;
+	dragging?: boolean;
 	onOpen(event: CalendarEvent): void;
 	onContextMenu(event: CalendarEvent, position: { x: number; y: number }): void;
 }
@@ -22,6 +23,7 @@ export function EventBlock({
 	width,
 	continuesBefore,
 	continuesAfter,
+	dragging = false,
 	onOpen,
 	onContextMenu,
 }: EventBlockProps) {
@@ -30,13 +32,19 @@ export function EventBlock({
 	return (
 		<button
 			type="button"
+			data-event-id={event.id}
 			onClick={() => onOpen(event)}
 			onContextMenu={(pointer) => {
 				pointer.preventDefault();
 				onContextMenu(event, { x: pointer.clientX, y: pointer.clientY });
 			}}
-			className="absolute z-20 cursor-pointer overflow-hidden rounded border border-blue-700 bg-blue-600 px-2 py-1 text-left text-xs text-white shadow-sm hover:bg-blue-700"
-			style={{ top, height, left: `${left * 100}%`, width: `${width * 100}%` }}
+			className={`absolute z-20 cursor-pointer overflow-hidden rounded border border-blue-700 bg-blue-600 px-2 py-1 text-left text-xs text-white shadow-sm hover:bg-blue-700 ${dragging ? "z-30 opacity-80 ring-2 ring-blue-400" : ""}`}
+			style={{
+				top,
+				height,
+				left: `${left * 100}%`,
+				width: `${width * 100}%`,
+			}}
 		>
 			<span className="flex items-center gap-1 font-medium">
 				{continuesBefore ? <span aria-hidden="true">‹</span> : null}

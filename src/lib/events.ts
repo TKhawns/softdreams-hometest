@@ -55,3 +55,14 @@ export function findEvent(
 ): CalendarEvent | undefined {
 	return events.find((event) => event.id === eventId);
 }
+
+/** Null when the input is acceptable; otherwise the reason it cannot be saved. */
+export function validateEventInput(
+	title: string,
+	start: Date,
+	end: Date,
+): string | null {
+	if (!title.trim()) return "Title is required";
+	if (end.getTime() <= start.getTime()) return "End must be after start";
+	return null;
+}

@@ -62,3 +62,49 @@ export function formatDateTime(date: Date): string {
 	const month = MONTHS_SHORT[date.getMonth()];
 	return `${weekday}, ${month} ${date.getDate()} · ${formatTime(date)}`;
 }
+
+function pad2(n: number): string {
+	return String(n).padStart(2, "0");
+}
+
+/** Local Date from an `<input type="datetime-local">` value ("2026-09-21T09:30"), or null. */
+export function parseDateTimeLocal(value: string): Date | null {
+	const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value);
+	if (!match) return null;
+	const year = Number(match[1]);
+	const month = Number(match[2]);
+	const day = Number(match[3]);
+	const hour = Number(match[4]);
+	const minute = Number(match[5]);
+	if (
+		month < 1 ||
+		month > 12 ||
+		day < 1 ||
+		day > 31 ||
+		hour > 23 ||
+		minute > 59
+	) {
+		return null;
+	}
+	const date = new Date(year, month - 1, day, hour, minute);
+	// Reject components the Date constructor rolled over (e.g. month 13).
+	if (
+		date.getMonth() !== month - 1 ||
+		date.getDate() !== day ||
+		date.getHours() !== hour ||
+		date.getMinutes() !== minute
+	) {
+		return null;
+	}
+	return Number.isNaN(date.getTime()) ? null : date;
+}
+
+/** "2026-09-21T09:30" from a Date, for datetime-local prefill. */
+export function formatDateTimeLocal(date: Date): string {
+	return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}T${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+}
+
+/** A Date at the given minute-of-day on the given calendar day. */
+export function dateAtMinutesOfDay(day: Date, minute: number): Date {
+	return addMinutes(startOfDay(day), minute);
+}

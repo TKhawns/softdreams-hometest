@@ -102,6 +102,8 @@ describe("DayColumn with events", () => {
 				events={events}
 				onOpenEvent={noop}
 				onEventContextMenu={noop}
+				onDragCreate={noop}
+				onDragMove={noop}
 			/>,
 		);
 		expect(html).toContain("Morning");
@@ -123,6 +125,8 @@ describe("DayColumn with events", () => {
 				events={[spanning]}
 				onOpenEvent={noop}
 				onEventContextMenu={noop}
+				onDragCreate={noop}
+				onDragMove={noop}
 			/>,
 		);
 		const second = renderToString(
@@ -132,6 +136,8 @@ describe("DayColumn with events", () => {
 				events={[spanning]}
 				onOpenEvent={noop}
 				onEventContextMenu={noop}
+				onDragCreate={noop}
+				onDragMove={noop}
 			/>,
 		);
 		expect(first).toContain("Conference");
@@ -147,6 +153,8 @@ describe("DayColumn with events", () => {
 				events={events}
 				onOpenEvent={noop}
 				onEventContextMenu={noop}
+				onDragCreate={noop}
+				onDragMove={noop}
 			/>,
 		);
 		expect(html).not.toContain("Later");
