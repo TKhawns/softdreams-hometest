@@ -17,7 +17,7 @@ export function Modal({ onClose, children }: ModalProps) {
 	}, [onClose]);
 
 	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+		<div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
 			<button
 				type="button"
 				aria-label="Close dialog"
@@ -27,7 +27,7 @@ export function Modal({ onClose, children }: ModalProps) {
 			<div
 				role="dialog"
 				aria-modal="true"
-				className="relative z-10 w-full max-w-md rounded-lg bg-white p-5 shadow-xl"
+				className="relative z-10 max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-white p-5 shadow-xl sm:rounded-lg"
 			>
 				{children}
 			</div>

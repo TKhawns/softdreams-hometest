@@ -1,11 +1,12 @@
-import type { CalendarEvent } from "../lib/events";
-import { formatDateTime, formatTime } from "../lib/time";
-import { Modal } from "./Modal";
+import type { CalendarEvent } from "../../lib/events";
+import { formatDateTime, formatTime } from "../../lib/time";
+import { Modal } from "../commons/Modal";
 
 export interface EventDetailsDialogProps {
 	event: CalendarEvent;
 	onClose(): void;
 	onEdit(): void;
+	onDelete(): void;
 }
 
 /** Read-only view of an event, opened by left-clicking the event. */
@@ -13,6 +14,7 @@ export function EventDetailsDialog({
 	event,
 	onClose,
 	onEdit,
+	onDelete,
 }: EventDetailsDialogProps) {
 	return (
 		<Modal onClose={onClose}>
@@ -30,6 +32,13 @@ export function EventDetailsDialog({
 					className="rounded-md px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100"
 				>
 					Close
+				</button>
+				<button
+					type="button"
+					onClick={onDelete}
+					className="rounded-md px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50"
+				>
+					Delete
 				</button>
 				<button
 					type="button"

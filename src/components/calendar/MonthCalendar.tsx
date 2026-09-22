@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 
-import { buildMonthCells, isSameMonth, monthLabel } from "../lib/month";
-import { WEEKDAYS_SHORT } from "../lib/time";
-import { isSameDay } from "../lib/week";
+import { buildMonthCells, isSameMonth, monthLabel } from "../../lib/month";
+import { WEEKDAYS_SHORT } from "../../lib/time";
+import { isSameDay } from "../../lib/week";
 
 export interface MonthCalendarProps {
-	/** The 7 days currently shown in the week viewport. */
 	days: Date[];
 	now: Date;
 	onSelectDay(day: Date): void;
+	className?: string;
 }
 
 /**
@@ -16,7 +16,12 @@ export interface MonthCalendarProps {
  * viewport's first day (it slides with the viewport), highlights the days
  * that are in the viewport, and clicking a day pans the viewport to it.
  */
-export function MonthCalendar({ days, now, onSelectDay }: MonthCalendarProps) {
+export function MonthCalendar({
+	days,
+	now,
+	onSelectDay,
+	className,
+}: MonthCalendarProps) {
 	const [monthAnchor, setMonthAnchor] = useState(() => startOfMonth(days[0]));
 
 	useEffect(() => {
@@ -27,7 +32,9 @@ export function MonthCalendar({ days, now, onSelectDay }: MonthCalendarProps) {
 	const viewportKeys = new Set(days.map((day) => day.getTime()));
 
 	return (
-		<aside className="flex w-60 shrink-0 flex-col border-r border-neutral-200 bg-white p-3">
+		<aside
+			className={`flex w-60 shrink-0 flex-col border-r border-neutral-200 bg-white p-3${className ? ` ${className}` : ""}`}
+		>
 			<div className="mb-2 flex items-center justify-between">
 				<h2 className="text-sm font-semibold text-neutral-800">
 					{monthLabel(monthAnchor)}

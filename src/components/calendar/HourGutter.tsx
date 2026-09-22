@@ -1,5 +1,5 @@
-import { HOUR_HEIGHT_PX } from "../lib/geometry";
-import { formatHour } from "../lib/time";
+import { HOUR_HEIGHT_PX } from "../../lib/geometry";
+import { formatHour } from "../../lib/time";
 
 export function HourGutter() {
 	return (

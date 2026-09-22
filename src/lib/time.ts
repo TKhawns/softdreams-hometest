@@ -41,14 +41,12 @@ export function addMinutes(date: Date, minutes: number): Date {
 	return new Date(date.getTime() + minutes * MS_PER_MINUTE);
 }
 
-/** "09:05" — 24h, zero-padded. */
 export function formatTime(date: Date): string {
 	const h = String(date.getHours()).padStart(2, "0");
 	const m = String(date.getMinutes()).padStart(2, "0");
 	return `${h}:${m}`;
 }
 
-/** "12 AM", "1 PM" — 12h label for the hour gutter, from minutes since midnight. */
 export function formatHour(minutesOfDay: number): string {
 	const hour = Math.floor(minutesOfDay / 60) % 24;
 	const period = hour < 12 ? "AM" : "PM";
@@ -56,7 +54,6 @@ export function formatHour(minutesOfDay: number): string {
 	return `${hour12} ${period}`;
 }
 
-/** "Mon, Sep 21 · 09:30" — readable full datetime for dialogs. */
 export function formatDateTime(date: Date): string {
 	const weekday = WEEKDAYS_SHORT[date.getDay()];
 	const month = MONTHS_SHORT[date.getMonth()];
@@ -67,7 +64,6 @@ function pad2(n: number): string {
 	return String(n).padStart(2, "0");
 }
 
-/** Local Date from an `<input type="datetime-local">` value ("2026-09-21T09:30"), or null. */
 export function parseDateTimeLocal(value: string): Date | null {
 	const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value);
 	if (!match) return null;
@@ -87,7 +83,6 @@ export function parseDateTimeLocal(value: string): Date | null {
 		return null;
 	}
 	const date = new Date(year, month - 1, day, hour, minute);
-	// Reject components the Date constructor rolled over (e.g. month 13).
 	if (
 		date.getMonth() !== month - 1 ||
 		date.getDate() !== day ||
@@ -99,12 +94,10 @@ export function parseDateTimeLocal(value: string): Date | null {
 	return Number.isNaN(date.getTime()) ? null : date;
 }
 
-/** "2026-09-21T09:30" from a Date, for datetime-local prefill. */
 export function formatDateTimeLocal(date: Date): string {
 	return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}T${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
 }
 
-/** A Date at the given minute-of-day on the given calendar day. */
 export function dateAtMinutesOfDay(day: Date, minute: number): Date {
 	return addMinutes(startOfDay(day), minute);
 }

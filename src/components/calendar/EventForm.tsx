@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { validateEventInput } from "../lib/events";
-import { formatDateTimeLocal, parseDateTimeLocal } from "../lib/time";
-import { Modal } from "./Modal";
+import { validateEventInput } from "../../lib/events";
+import { formatDateTimeLocal, parseDateTimeLocal } from "../../lib/time";
+import { Modal } from "../commons/Modal";
 
 export interface EventFormValues {
 	title: string;
@@ -85,7 +85,7 @@ export function EventForm({
 					/>
 				</label>
 
-				<div className="grid grid-cols-2 gap-3">
+				<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 					<label className="block">
 						<span className="text-sm font-medium text-neutral-700">Start</span>
 						<input

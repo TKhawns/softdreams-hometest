@@ -1,14 +1,14 @@
-import type { CalendarEvent } from "../lib/events";
-import type { DayEventSegment } from "../lib/geometry";
+import type { CalendarEvent } from "../../lib/events";
+import type { DayEventSegment } from "../../lib/geometry";
 import {
 	eventSegmentForDay,
 	HOUR_HEIGHT_PX,
 	minutesToY,
 	timeToY,
-} from "../lib/geometry";
-import { layoutDaySegments } from "../lib/layout";
-import { MS_PER_MINUTE } from "../lib/time";
-import { isSameDay } from "../lib/week";
+} from "../../lib/geometry";
+import { layoutDaySegments } from "../../lib/layout";
+import { MS_PER_MINUTE } from "../../lib/time";
+import { isSameDay } from "../../lib/week";
 import { EventBlock } from "./EventBlock";
 
 const HOUR_STARTS = Array.from({ length: 24 }, (_, h) => h * 60);
@@ -17,14 +17,9 @@ export interface DayColumnProps {
 	day: Date;
 	now: Date;
 	events: CalendarEvent[];
-	/**
-	 * The moved event at its draft position while a move-drag is active. When
-	 * set, the original block with the same id is replaced by this draft's
-	 * segment (computed for this column), hiding the old position.
-	 */
 	moveDraft?: CalendarEvent | null;
-	/** Minutes-of-day range highlighted while drag-creating (this column only). */
 	createRange?: { start: number; end: number } | null;
+	className?: string;
 	onOpenEvent(event: CalendarEvent): void;
 	onEventContextMenu(
 		event: CalendarEvent,
@@ -41,17 +36,13 @@ interface DaySegment {
 	dragging: boolean;
 }
 
-/**
- * One day column: hourly cells, events (side by side when overlapping), the
- * current-time line, and drag previews (create selection rectangle, moved
- * event ghost) that WeekView computes and feeds in.
- */
 export function DayColumn({
 	day,
 	now,
 	events,
 	moveDraft = null,
 	createRange = null,
+	className,
 	onOpenEvent,
 	onEventContextMenu,
 }: DayColumnProps) {
@@ -62,7 +53,7 @@ export function DayColumn({
 
 	const segments: DaySegment[] = [];
 	for (const event of events) {
-		if (event.id === moveDraft?.id) continue; // replaced by the draft below
+		if (event.id === moveDraft?.id) continue;
 		const segment = eventSegmentForDay(event, day);
 		if (!segment) continue;
 		segments.push({
@@ -91,7 +82,7 @@ export function DayColumn({
 
 	return (
 		<div
-			className="relative flex-1 select-none border-r border-neutral-200"
+			className={`relative flex-1 select-none border-r border-neutral-200${className ? ` ${className}` : ""}`}
 			style={{ height: 24 * HOUR_HEIGHT_PX, touchAction: "none" }}
 		>
 			{HOUR_STARTS.map((minutes) => (

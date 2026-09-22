@@ -2,9 +2,7 @@ export interface CalendarEvent {
 	id: string;
 	title: string;
 	description: string;
-	/** Inclusive full datetime (date + time — there are no all-day events). */
 	start: Date;
-	/** Exclusive end datetime. */
 	end: Date;
 }
 

@@ -1,7 +1,7 @@
-import type { CalendarEvent } from "../lib/events";
-import type { DayEventSegment } from "../lib/geometry";
-import { durationToHeight, HOUR_HEIGHT_PX, timeToY } from "../lib/geometry";
-import { formatTime } from "../lib/time";
+import type { CalendarEvent } from "../../lib/events";
+import type { DayEventSegment } from "../../lib/geometry";
+import { durationToHeight, HOUR_HEIGHT_PX, timeToY } from "../../lib/geometry";
+import { formatTime } from "../../lib/time";
 
 export interface EventBlockProps {
 	event: CalendarEvent;

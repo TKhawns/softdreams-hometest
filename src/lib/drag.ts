@@ -2,21 +2,12 @@ import {
 	buildRange,
 	clampMinutes,
 	GRID_STEP_MINUTES,
+	LAST_HOUR_START_MINUTES,
 	MIN_EVENT_MINUTES,
 	snapMinutes,
 } from "./geometry";
-import {
-	addMinutes,
-	dateAtMinutesOfDay,
-	MINUTES_PER_DAY,
-	MS_PER_MINUTE,
-} from "./time";
+import { addMinutes, dateAtMinutesOfDay, MS_PER_MINUTE } from "./time";
 
-/**
- * The default range offered when the user merely clicks an empty grid slot
- * (no drag): a 1-hour event starting at the snapped click minute. The start
- * is clamped so the hour fits inside the visible day (≤ 23:00).
- */
 export function defaultCreateRange(
 	day: Date,
 	clickMinuteOfDay: number,
@@ -24,7 +15,7 @@ export function defaultCreateRange(
 	const startMinute = clampMinutes(
 		snapMinutes(clickMinuteOfDay, GRID_STEP_MINUTES),
 		0,
-		MINUTES_PER_DAY - 60,
+		LAST_HOUR_START_MINUTES,
 	);
 	return {
 		start: dateAtMinutesOfDay(day, startMinute),
@@ -51,13 +42,10 @@ export function snapDragRange(
 /**
  * The new full event range after a move-drag. The WHOLE event keeps its total
  * duration; only its start is re-anchored on the drag day (snapped to the
- * grid, clamped to not start before midnight). The end may overflow into the
- * next day, which is what preserves the duration of multi-day events.
- *
- * `rawNewStartMinute` is minutes-of-day relative to `dayStart`. Never derive
- * it from a day-1 segment's minute-of-day: `eventSegmentForDay` clips such a
- * segment's end to next-day midnight, and minutesSinceMidnight of that instant
- * is 0, not 1440, which corrupts the dragged span.
+ * grid, clamped to the visible day). The end may overflow into the next day,
+ * which is what preserves the duration of multi-day events. The start cannot
+ * go past the last visible hour (11 PM): the midnight marker sits at the TOP
+ * of the grid, so the bottom of the grid is the 11 PM hour, not next midnight.
  */
 export function moveWholeEvent(
 	event: { start: Date; end: Date },
@@ -71,7 +59,7 @@ export function moveWholeEvent(
 		clampMinutes(
 			snapMinutes(rawNewStartMinute, GRID_STEP_MINUTES),
 			0,
-			MINUTES_PER_DAY - 1,
+			LAST_HOUR_START_MINUTES,
 		),
 	);
 	return { start, end: addMinutes(start, durationMinutes) };

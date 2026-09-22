@@ -12,11 +12,11 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 }
 
-/*
- * Keep the day-column scroll container scrollable while hiding its scrollbar.
- * A visible scrollbar would shrink the columns' width inside the scroll box,
- * misaligning the vertical grid lines with the (non-scrolling) week header.
- */
+button,
+a {
+	cursor: pointer;
+}
+
 .no-scrollbar {
 	scrollbar-width: none; /* Firefox */
 	-ms-overflow-style: none; /* legacy Edge/IE */

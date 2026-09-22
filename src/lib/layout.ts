@@ -1,8 +1,6 @@
 export interface SegmentLike {
 	id: string;
-	/** Minutes since the start of the day. */
 	start: number;
-	/** Minutes since the start of the day (exclusive). */
 	end: number;
 }
 

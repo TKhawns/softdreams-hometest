@@ -1,15 +1,18 @@
 import { MS_PER_MINUTE, minutesSinceMidnight } from "./time";
 
-/** Pixels per hour of grid height. */
 export const HOUR_HEIGHT_PX = 48;
 
 export const VIEW_START_MINUTES = 0;
+
 export const VIEW_END_MINUTES = 24 * 60;
 
-/** Default drag snap step. */
+/** First minute of the last visible hour (23:00). A moved event's start may
+ *  not go past this: the "12 AM" marker sits at the top of the grid, so the
+ *  bottom limit is the 11 PM hour, not next midnight. */
+export const LAST_HOUR_START_MINUTES = 23 * 60;
+
 export const GRID_STEP_MINUTES = 15;
 
-/** Minimum duration enforced when creating events by drag. */
 export const MIN_EVENT_MINUTES = 15;
 
 /** Pixels from the top of a day column for a given minute of the day. */

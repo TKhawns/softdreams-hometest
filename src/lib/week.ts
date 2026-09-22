@@ -6,11 +6,20 @@ export function buildWeekDays(now: Date): Date[] {
 	return Array.from({ length: 7 }, (_, i) => addDays(anchor, i));
 }
 
-function addDays(date: Date, days: number): Date {
+/** A new Date offset by whole days (local calendar arithmetic). */
+export function addDays(date: Date, days: number): Date {
 	return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
 }
 
-/** True when both dates fall on the same calendar day. */
+/** Shift the week window forward/back by `weeks` (positive = forward). */
+export function shiftWeek(days: Date[], weeks: number): Date[] {
+	return buildWeekDays(addDays(days[0], weeks * 7));
+}
+
+export function formatDayHeading(date: Date): string {
+	return `${WEEKDAYS_SHORT[date.getDay()]}, ${MONTHS_SHORT[date.getMonth()]} ${date.getDate()}`;
+}
+
 export function isSameDay(a: Date, b: Date): boolean {
 	return (
 		a.getFullYear() === b.getFullYear() &&
@@ -24,15 +33,10 @@ export interface DayHeaderInfo {
 	day: number;
 }
 
-/** "Mon" + "21", for the day column headers. */
 export function dayHeaderInfo(date: Date): DayHeaderInfo {
 	return { weekday: WEEKDAYS_SHORT[date.getDay()], day: date.getDate() };
 }
 
-/**
- * "Sep 21 – 27, 2026" (same month), "Sep 28 – Oct 4, 2026" (cross-month),
- * "Dec 28, 2026 – Jan 3, 2027" (year-crossing).
- */
 export function formatWeekRangeLabel(days: Date[]): string {
 	const first = days[0];
 	const last = days[6];
