@@ -1,8 +1,12 @@
-# Time Blocking Calendar
+# [Softdreams Test] Time Event Calendar
 
 A Google Calendar–style work schedule built with **React + Vite + TypeScript**,
 TanStack Router, Tailwind CSS v4, and Biome. No third-party UI or calendar
 libraries.
+
+| Mobile | Desktop |
+| :----: | :-----: |
+| ![Mobile preview](public/preview-mobile.png) | ![Desktop preview](public/preview-desktop.png) |
 
 ## Features
 
@@ -37,8 +41,59 @@ pnpm format       # biome format --write
 
 ## Layout
 
-- `src/lib/` — pure logic: time/week, events, grid geometry, drag ranges,
-  overlap layout. Fully unit-tested.
-- `src/components/` — UI pieces: WeekView, DayColumn, EventBlock, dialogs,
-  context menu, modal.
-- `src/routes/` — the single calendar route hosting state and CRUD wiring.
+```text
+softdreams-test/
+├── index.html                     # Vite entry — mounts the app into <div id="root">
+├── package.json                   # deps + scripts (dev/build/typecheck/test/lint/format)
+├── pnpm-lock.yaml / pnpm-workspace.yaml
+├── biome.json                     # lint + format settings (tabs, double quotes)
+├── tsconfig.json / tsconfig.app.json / tsconfig.node.json
+├── vite.config.ts                 # Vite + Tailwind v4 + Vitest
+├── plan.md                        # project spec & working notes
+└── src/
+    ├── main.tsx                   # React root — renders <RouterProvider>
+    ├── router.tsx                 # TanStack Router wiring (root → index route)
+    ├── index.css                  # Tailwind v4 import + global scrollbar rules
+    ├── vite-env.d.ts              # Vite client type references
+    ├── routes/
+    │   ├── __root.tsx             # root route, just renders <Outlet/>
+    │   └── index.tsx              # the calendar page: event state, CRUD, responsive mode
+    ├── components/
+    │   ├── calendar/              # the week/agenda grid UI
+    │   │   ├── WeekView.tsx       # grid shell: header + gutter + day columns; drag & swipe
+    │   │   ├── WeekHeader.tsx     # nav (‹ Today ›), Day|Week toggle, day strip, Today-active
+    │   │   ├── HourGutter.tsx     # left-hand 24h time labels (12 AM – 11 PM)
+    │   │   ├── DayColumn.tsx      # one day: hour lines, events, now-line, create overlay
+    │   │   ├── EventBlock.tsx     # a positioned event (title, time, continuation chevrons)
+    │   │   ├── MonthCalendar.tsx  # month sidebar — click a day to pan the week
+    │   │   ├── ContextMenu.tsx    # right-click Edit / Delete menu
+    │   │   ├── EventDetailsDialog.tsx # read-only view with Edit + Delete
+    │   │   └── EventForm.tsx      # shared create/edit form (title, description, start/end)
+    │   └── commons/
+    │       └── Modal.tsx          # dialog — bottom sheet on phones, centered on ≥sm
+    ├── hooks/
+    │   └── useMediaQuery.ts       # reactive CSS media-query hook (mobile breakpoints)
+    └── lib/                       # pure, React-free logic (unit-testable)
+        ├── time.ts                # date/time helpers, formatting, datetime-local parsing
+        ├── week.ts                # 7-day window, week shifting, day/single-day labels
+        ├── month.ts               # month grid cells + labels for the month sidebar
+        ├── geometry.ts            # px↔minutes mapping, grid snapping, day segments, bounds
+        ├── drag.ts                # drag-create & move-event range math (clamped to 11 PM)
+        ├── layout.ts              # side-by-side layout for overlapping events
+        └── events.ts              # event model + immutable CRUD + range validation
+```
+
+How the pieces fit together:
+
+- **`src/lib/`** is the pure domain layer — pixel/time/geometry math and the event model only.
+  Nothing here imports React, so every function can be tested in isolation.
+- **`src/components/calendar/`** is the grid itself. `WeekView` coordinates the
+  day columns and owns the pointer gestures (drag-to-create, drag-to-move, and the
+  horizontal swipe that changes days on phones). `DayColumn` renders a single day's
+  events via `layoutDaySegments`; `EventBlock` is the visual block.
+- **`src/components/commons/`** holds reusable chrome — currently just `Modal`, which
+  adapts to a bottom sheet on small screens.
+- **`src/hooks/`** holds React hooks; `useMediaQuery` drives the mobile/tablet/desktop
+  breakpoints (single-day below `sm`, 7-day grid from `sm`, sidebar only from `lg`).
+- **`src/routes/`** is a thin state layer: it owns the week window, the focused day,
+  the view mode, and all events, and wires them into `WeekView`.
